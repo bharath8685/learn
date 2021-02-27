@@ -1,0 +1,17 @@
+<%- include('partials/head') %> 
+<body>
+    <%- include('partials/navbars.ejs') %> 
+    <div class="container">
+    <h1>subreddit  <%= name %> </h1>
+    <p>No of Subscribers: <%= subscribers %> </p>
+    <% for(let post of posts) {%> 
+    <ul>
+        <li><%= post.title %> </li>
+     <%     if(post.img ){ %>
+        <img src=<%= post.img %>  alt="">
+    <%   } %>
+    </ul>
+        <%}%>
+    </div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>subreddit</title>
+    /<link rel="stylesheet" href="/app.css">
+
+</head>
+<body>
+    
+    <h1>subreddit  <%= name %> </h1>
+    <p>No of Subscribers: <%= subscribers %> </p>
+    <% for(let post of posts) {%> 
+    <ul>
+        <li><%= post.title %> </li>
+     <%     if(post.img ){ %>
+        <img src=<%= post.img %>  alt="">
+    <%   } %>
+    </ul>
+        <%}%>
+</body>
+</html>

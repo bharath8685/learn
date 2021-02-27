@@ -1,0 +1,228 @@
+kubectl -n kube-system get-pods
+
+get pods -show-lables
+get pods -l env=dev
+kubectl get all 
+kubectl taint nodes node-name key=value:taint-effect
+kubectl taint nodes node1 app=blue:NoSchedule
+
+taint-effect-types:
+1 NoSchedule
+2 PreferNoSchedule
+3 NoExecute
+
+kubectl explain pod --recursive // this will give sample pod defination file
+kubectl explain pods -o wide
+
+kubectl explain pod --recursive  |grep configMap
+
+kubectl run bee --image=nginx  --restart=never --dry-run -o yaml >bee.yml
+
+
+schedule types
+taints and tolerations
+node-selectors
+node Affinity
+
+
+
+kubectl label node node01 color=blue
+
+kubectl get nodes node01 --show-lables
+kubectl create deployment blue --image=nginx
+kubectl scale deployment blue --replicas=6
+
+kubectl get pod  elephant -o yaml >elephant.yml
+
+
+kubectl get deployement frontend -o yaml > depl.yaml
+
+kubectl get pods --all-namespaces --no-headers |wc -l
+
+ps -aux |grep kubelet
+check for --config 
+kubectl get   events
+kubectl logs my-scheduler -name-space=kube-system
+kubectl logs -f pods podname/nodename
+
+kubectl  rollout status deployment/deploymentname
+kubectl rollout history deployment/deploymentname
+
+kubectl rollout undo deployment/deploymentname
+
+
+
+
+kubectl set image deployment/deploymentName nginx=nginx1.91
+
+deployment types
+recreate and rolling update
+
+kubectl set image deployment/deploymentName nginx=nginx1.91  //to update image fo the deployment 
+
+
+kubectl get cm
+
+kubectl create configmap <config_Name> --from-literal=<key>=<vlaue>
+
+
+kubectl create configmap <config_Name> --from-file=app_config.properties // from file
+
+
+
+kubectl create secret generic <secretName> --from-literal=<key>=<value>
+
+encode a value(convert a valu to base 64) 
+echo -n "password" | base64
+echo -n "cGFzc3dvcmQ=" | base64  --decode
+
+
+kubectl exec -it  app -n elastic-stack -- tail -f  /log/app.log
+
+to load secret as a volume  each key in the secret is created a file with its value
+
+
+kube-contoller-manager --pod-eviction-timeout=5m0s
+
+
+kubectl drain <nodeName>
+kubectl uncordon <nodeName>
+
+apt-get  upgrade -y kubeadm=1.12.0-00
+kubeadm   upgrade apply 1.12.0
+
+apt-get  upgrade -y kubelet=1.12.0-00 //on master node and restart kublete
+
+
+nneed to update kubeadm and kubelet on the node  once Done restart kubelet service
+
+apt-get  upgrade -y kubeadm=1.12.0-00
+apt-get  upgrade -y kubelet=1.12.0-00 
+
+kubeadm upgrade node config --kubelet-version 1.12.0
+
+kubctl version --short
+kubeadm version
+kubeadm upgrade node
+
+ 30  kubeadm upgrade plan
+   31  apt update, apt install kubeadm=1.19.0-00
+   32  apt update -y
+   33  apt-get upgrade -y kubeadm=1.18.12
+   34  apt install kubeadm=1.19.0-00
+   35  kubeadm   upgrade apply 1.19.0
+   36  apt install kubelet=1.19.0-00
+   37  kubectl get nodes
+   38  kubectl uncordnor  controlplane
+   39  kubectl uncordon  controlplane
+   40  kubectl drain node01
+   41  kubectl drain node01 --ignore-daemonsets
+   42  kubectl get pods
+   43  kubectl get nodes -o wide
+
+
+
+
+
+
+
+
+
+kebectl get all --all-namespaces -o yaml >> app_deployrd_services.yaml
+
+create etcd-snapshot
+ETCDCTL_APT=3 etcdctl snapshot <snampshot Name>
+
+=======================induce secret into pod def file========================
+envFrom:
+  - secretRef:
+      name: <secretName>
+
+env: 
+  - name : DB_Password
+    valueFrom:
+       secretKeyRef:
+           name: <secretName>
+           key: <value>
+volume:
+ - name: app-sceret-volume
+   secret: 
+      secretName: <secretName>
+==========================================================
+
+============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      affinity:
+        nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+               nodeSelectorTerms:
+               - matchExpressions:
+                 - key: color
+                   operator: In
+                   values:
+                    - blue
+      containers:
+      - name: nginx
+        image: nginx
+
+====================================
+env:
+- name: PLAYER_INITIAL_LIVES 
+  valueFrom:
+    configMapKeyRef:
+      name: webapp-config-map   
+====================================
+=======sample multi container with volume mount======================
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: app
+  name: app
+  namespace: elastic-stack
+spec:
+  containers:
+  - image: kodekloud/filebeat-configured
+    name: sidecar
+    volumeMounts:
+    - mountPath: /var/log/event-simulator/
+      name: log-volume
+  - image: kodekloud/event-simulator
+    imagePullPolicy: Always
+    name: app
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /log
+      name: log-volume
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-btgwl
+      readOnly: true
+  nodeName: node01
+  volumes:
+  - hostPath:
+      path: /var/log/webapp
+      type: DirectoryOrCreate
+    name: log-volume
+  - name: default-token-btgwl
+    secret:
+      defaultMode: 420
+      secretName: default-token-btgwl
+=========================================================
+
+
+openssl x509 -in file-path.crt -text -noout

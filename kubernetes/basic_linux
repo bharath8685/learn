@@ -1,0 +1,31 @@
+rpm installtaion
+     install: rpm -ivh telnet.rpm
+     uninstall rpm -e telnet.rpm
+     upgrade: rpm -Uvh telnet.rpm
+     Query/details: rpm -q telnet.rpm
+     verify:  rpm -vf <package_path>
+
+YUM
+yum repolist
+yump provides scp
+
+
+dpkg -i telnet.deb
+
+dpkg -r telnet.deb
+
+list 
+dpkg -l telnet.deb
+
+check status
+dpkg -s telnet.deb
+
+dpkg -p <path to file>
+
+update repositories
+apt update
+
+upgrade package
+apt upgrade
+
+apt list
